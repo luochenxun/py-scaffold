@@ -1,0 +1,163 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+"""  Tool description.  """
+__author__ = 'luochenxun'
+__version__ = '1.0.0'
+
+
+import getopt
+import sys
+import re
+from sys import argv
+import os.path
+import locale
+import datetime
+import shutil
+import json
+import collections
+import pickle
+import base64
+import time
+
+
+def usage():
+    """ Print the usage as help """
+    print("\nGithooker is a extensible tool to hook your git projects. version:%s ." % __version__)
+    print("\nUsage: githooker <cmd> [OPTIONS] [param]")
+    print("  init                   : init the hook-environment of the project, write the config in githooker.json")
+    print("  clean                  : clean the hook-environment of the project, do the reverse job as \'init\'")
+    print("  list                   : list the config of the project")
+    print("  add  [hookers]         : add a hooker of the project")
+    print("  remove [hookers]       : remove a hooker of the project")
+    print("  clear                  : clear all the hookers the project")
+    print("  make [OPTIONS] [param] : help you to make a githooker plugin in the current dir")
+    print("\nfor more infomation of the cmd, you can use option as \'githooker add -h\' for farther help.")
+    print("")
+    _exit()
+
+
+""" global variables """
+gConfig = None
+M_PROJECT_HOME = os.environ['HOME'] + "/.py-scaffold/"
+M_PROJECT_CONFIG = M_PROJECT_HOME + "config.json"
+
+
+def initEnvironment():
+    # if sys.version_info < (3, 3):
+    #     _exit("Error, the python version need to be greater than 3.3")
+    readGlobalConfig()
+    # updateGithooker()
+
+
+def readGlobalConfig():
+    """
+    Config.json
+    {
+      version: current tool version
+      date: the newest time of theck update
+    }
+    """
+    global M_PROJECT_CONFIG, gConfig
+    # default config
+    defaultConfig = collections.OrderedDict()
+    defaultConfig["version"] = __version__
+    defaultConfig["date"] = str(int(time.time()))
+    # create a config file if not exists
+    if not os.path.exists(M_PROJECT_HOME):
+        os.makedirs(M_PROJECT_HOME)
+    if not os.path.exists(M_PROJECT_CONFIG):
+        gConfig = defaultConfig
+        configWritter = open(M_PROJECT_CONFIG, 'w')
+        try:
+            configWritter.write(json.dumps(gConfig, indent=2))
+        finally:
+            configWritter.close()
+        return
+    else:  # read the config
+        configReader = open(M_PROJECT_CONFIG, 'r')
+        try:
+            configText = configReader.read()
+            gConfig = json.loads(configText, object_pairs_hook=collections.OrderedDict)
+        except Exception as e:
+            gConfig = defaultConfig
+            configWritter = open(M_PROJECT_CONFIG, 'w')
+            try:
+                configWritter.write(json.dumps(gConfig, indent=2))
+            finally:
+                configWritter.close()
+        finally:
+            configReader.close()
+
+
+def _exit(msg):
+    print(msg)
+    os._exit(1)
+
+
+def _parseArgv():
+    """
+    pass the cmd & options of the command
+    """
+    if len(sys.argv) <= 1:
+        usage()
+        sys.exit(0)
+    try:
+        cmd = _parseCmd(sys.argv[1], [
+            "update", "hook", "init", "clean", "list", "add", "remove", "clear", "make"
+        ])
+        opts, args = getopt.getopt(sys.argv[1:], "hv", ["help", "version"])
+    except getopt.GetoptError as err:
+        print(str(err))
+        usage()
+
+    try:
+        if cmd:
+            print("go")
+            # if cmd == "hook":
+            #     hookEntry(sys.argv[2:])
+            # if cmd == "init":
+            #     initEntry()
+            # if cmd == "clean":
+            #     cleanEntry()
+            # if cmd == "list":
+            #     listEntry()
+            # if cmd == "add":
+            #     addEntry(sys.argv[2:])
+            # if cmd == "remove":
+            #     removeEntry(sys.argv[2:])
+            # if cmd == "clear":
+            #     clearEntry()
+            # if cmd == "make":
+            #     makeEntry(sys.argv[2:])
+            # if cmd == "update":
+            #     updateGithooker()
+        else:
+            if not opts:
+                usage()
+            for o, a in opts:
+                if o in ("-h", "--help"):
+                    usage()
+                if o in ("-v", "--version"):
+                    print(__version__)
+                    return
+    except ValueError as err:
+        print(str(err))
+        usage()
+
+
+def _parseCmd(arg, cmds):
+    for c in cmds:
+        if arg == c:
+            return arg
+    return None
+
+
+# you can run the functions of the module or some test methods here
+def main():
+    # check arguments
+    initEnvironment()
+    _parseArgv()
+
+
+if __name__ == "__main__":
+    main()
