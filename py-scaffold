@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """  Tool description.  """
 __author__ = 'luochenxun'
-__version__ = '1.0.2'
+__version__ = '1.0.4'
 __projectName__ = 'py-scaffold'
 
 import getopt
@@ -87,8 +87,9 @@ def checkAndAutoUpdate(forceUpdate = False):
 
 def _autoUpdate():
     global M_PROJECT_MAIN_FILE, M_PROJECT_SYS_BIN
-    print('We find a new version, now updating...')
+    print('A new version existed, now updating...')
     shutil.copy(M_PROJECT_MAIN_FILE, M_PROJECT_SYS_BIN)
+    print('Success!')
 
 def _readGlobalConfig():
     """
